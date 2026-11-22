@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Yudan Game Studio</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/game.js" defer></script>
+</head>
+
+<body>
+
+    <header>
+        <h1>🎮 YUDAN GAME STUDIO</h1>
+        <p>Welcome to the gaming world!</p>
+    </header>
+
+    <main class="container">
+
+        <h2>TIC TAC TOE</h2>
+
+        <div class="score">
+            <div>Player X: <span id="scoreX">0</span></div>
+            <div>Player O: <span id="scoreO">0</span></div>
+        </div>
+
+        <h3 id="status">Player X's turn</h3>
+
+        <div class="board" id="board">
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+        </div>
+
+        <button id="restart">RESTART GAME</button>
+        <button id="resetScore">RESET SCORE</button>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Yudan Game Studio</p>
+        <p>Created by Yudan | Version 1.0</p>
+    </footer>
+
+</body>
+</html>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #0b1020;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+header {
+    background: #172554;
+    padding: 22px 10px;
+}
+
+header h1 {
+    color: #38bdf8;
+    font-size: 25px;
+}
+
+.container {
+    width: 92%;
+    max-width: 420px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #172033;
+    border-radius: 18px;
+}
+
+h2 {
+    color: #facc15;
+}
+
+.score {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px;
+    font-size: 18px;
+}
+
+#status {
+    color: #38bdf8;
+    min-height: 25px;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 20px auto;
+}
+
+.cell {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid #334155;
+    border-radius: 12px;
+    background: #263449;
+    color: white;
+    font-size: 45px;
+    font-weight: bold;
+}
+
+.cell:active {
+    background: #475569;
+}
+
+button {
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+#restart, #resetScore {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 9px;
+    background: #0284c7;
+    color: white;
+    font-size: 15px;
+}
+
+#resetScore {
+    background: #dc2626;
+}
+
+footer {
+    color: #94a3b8;
+    padding: 20px;
+    font-size: 13px;
+    }
+const cells = document.querySelectorAll(".cell");
+
+const statusText = document.getElementById("status");
+const scoreXText = document.getElementById("scoreX");
+const scoreOText = document.getElementById("scoreO");
+
+const restartButton = document.getElementById("restart");
+const resetScoreButton = document.getElementById("resetScore");
+
+let currentPlayer = "X";
+let gameActive = true;
+
+let scoreX = 0;
+let scoreO = 0;
+
+let gameState = ["", "", "", "", "", "", "", "", ""];
+
+const winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
+
+function handleCellClick(index) {
+
+    if (gameState[index] !== "" || !gameActive) {
+        return;
+    }
+
+    gameState[index] = currentPlayer;
+    cells[index].textContent = currentPlayer;
+
+    checkWinner();
+}
+
+function checkWinner() {
+
+    let winner = false;
+
+    for (let condition of winningConditions) {
+
+        const [a, b, c] = condition;
+
+        if (
+            gameState[a] !== "" &&
+            gameState[a] === gameState[b] &&
+            gameState[b] === gameState[c]
+        ) {
+            winner = true;
+            break;
+        }
+    }
+
+    if (winner) {
+
+        statusText.textContent =
+            "🎉 Player " + currentPlayer + " wins!";
+
+        if (currentPlayer === "X") {
+            scoreX++;
+            scoreXText.textContent = scoreX;
+        } else {
+            scoreO++;
+            scoreOText.textContent = scoreO;
+        }
+
+        gameActive = false;
+        return;
+    }
+
+    if (!gameState.includes("")) {
+
+        statusText.textContent = "🤝 It's a draw!";
+        gameActive = false;
+        return;
+    }
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+    statusText.textContent =
+        "Player " + currentPlayer + "'s turn";
+}
+
+function restartGame() {
+
+    currentPlayer = "X";
+    gameActive = true;
+
+    gameState = ["", "", "", "", "", "", "", "", ""];
+
+    cells.forEach(cell => {
+        cell.textContent = "";
+    });
+
+    statusText.textContent = "Player X's turn";
+}
+
+function resetScore() {
+
+    scoreX = 0;
+    scoreO = 0;
+
+    scoreXText.textContent = "0";
+    scoreOText.textContent = "0";
+
+    restartGame();
+}
+
+cells.forEach((cell, index) => {
+
+    cell.addEventListener("click", () => {
+        handleCellClick(index);
+    });
+
+});
+
+restartButton.addEventListener("click", restartGame);
+
+resetScoreButton.addEventListener("click", resetScore);
+
